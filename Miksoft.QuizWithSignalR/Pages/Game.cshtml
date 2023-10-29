@@ -1,0 +1,108 @@
+﻿@page
+@model GameModel
+@{
+    ViewData["Title"] = "Play";
+}
+
+<!--Reference the SignalR library. -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/6.0.1/signalr.js"></script>
+
+<!--Add script to update the page and send messages.-->
+<script type="text/javascript">
+    document.addEventListener('DOMContentLoaded', function () {
+
+        const hub = new signalR.HubConnectionBuilder()
+            .withUrl('/quizHub')
+            .build();
+
+        var connectionId;
+        function getConnectionId() {
+
+            console.log('hub.connection.connectionId: ', hub.connection.connectionId)
+            connectionId = hub.connection.connectionId;
+        }
+        
+        function registerParticipant() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const participantName = urlParams.get('participantName');
+            
+            hub.send('register', connectionId, participantName);
+            console.log('participant with connectionId: ', participantName, ' registered');
+        }
+
+        hub.on('Question', (connectionId, message) => {
+            console.log('question, connectionId: ', connectionId, 'message: ', message);
+            var question = JSON.parse(message);
+            
+            document.getElementById('question').innerHTML = question.Text;
+
+            document.getElementById('A_label').innerHTML = question.A;
+            document.getElementById('B_label').innerHTML = question.B;
+            document.getElementById('C_label').innerHTML = question.C;
+            document.getElementById('D_label').innerHTML = question.D;
+            
+        });
+        
+        document.getElementById('submit').addEventListener('click', function (event) {
+            
+            // get checked radio button
+            var a = document.getElementById('A');
+            var b = document.getElementById('B');
+            var c = document.getElementById('C');
+            var d = document.getElementById('D');
+            var selectedRadio = a.checked ? 'A' : b.checked ? 'B' : c.checked ? 'C' : d.checked ? 'D' : null;
+
+            if (selectedRadio != null) {
+
+                var question = {
+                    Question: document.getElementById('question').innerHTML,
+                    Answer: selectedRadio
+                };
+
+                hub.send('submitAnswer', connectionId, JSON.stringify(question));
+                console.log('connectionId: ', connectionId, ', answer: ', JSON.stringify(question));
+            }
+
+            event.preventDefault();
+        });
+
+        hub.start()
+            .then(() => console.log('Connection started'))
+            .then(() => getConnectionId())
+            .then(() => registerParticipant())
+            .catch(error => console.error(error.message));
+
+    });
+</script>
+
+<h1>@ViewData["Title"]</h1>
+
+<p>Hello!</p>
+<div class="container">
+    <div class="text-center">
+        <form method="post">
+
+            <h2>Question:</h2>
+            <h3 id="question">What would be your answer?</h3>
+            <div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="flexRadioDefault" id="A">
+                    <label class="form-check-label" for="A" id="A_label">A</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="flexRadioDefault" id="B">
+                    <label class="form-check-label" for="B" id="B_label">B</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="flexRadioDefault" id="C">
+                    <label class="form-check-label" for="C" id="C_label">C</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="flexRadioDefault" id="D">
+                    <label class="form-check-label" for="D" id="D_label">D</label>
+                </div>
+            </div>
+            <button id="submit" class="btn btn-primary">Submit</button>
+        </form>
+    </div>
+</div>

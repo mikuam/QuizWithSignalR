@@ -1,0 +1,19 @@
+﻿@page
+@model ParticipantModel
+@{
+    ViewData["Title"] = "Participate";
+}
+<h1>@ViewData["Title"]</h1>
+
+<p>Hello!</p>
+<div class="container">
+    <div class="text-center">
+        <form method="post">
+            <div class="form-group form-paddding">
+                <label for="name">Type your name:</label>
+                <input type="text" id="name" name="Name" placeholder="Name">
+            </div>
+            <button type="submit" class="btn btn-primary py-3 px-5 mt-3">Participate</button>
+        </form>
+    </div>
+</div>

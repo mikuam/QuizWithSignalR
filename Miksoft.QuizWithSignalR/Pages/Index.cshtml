@@ -1,0 +1,18 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Leaderboard";
+}
+
+
+<p>Hello!</p>
+<div class="container">
+    <div class="text-center">
+        <h1 class="display-4">Leaderboard</h1>
+        <form method="post">
+            <button type="submit" class="btn btn-primary py-3 px-5 mt-3" asp-page-handler="SendQuestion1">Send Question 1</button>
+            <button type="submit" class="btn btn-primary py-3 px-5 mt-3" asp-page-handler="SendQuestion2">Send Question 2</button>
+            <button type="submit" class="btn btn-primary py-3 px-5 mt-3" asp-page-handler="SendQuestion3">Send Question 3</button>
+        </form>
+    </div>
+</div>
