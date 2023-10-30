@@ -18,7 +18,6 @@ public class ParticipantModel : PageModel
 
     public void OnGet()
     {
-        _hubContext.Clients.All.SendAsync("ReceiveMessage", "question", "some options");
     }
 
     public IActionResult OnPost()

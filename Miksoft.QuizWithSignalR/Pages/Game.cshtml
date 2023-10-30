@@ -17,23 +17,21 @@
 
         var connectionId;
         function getConnectionId() {
-
-            console.log('hub.connection.connectionId: ', hub.connection.connectionId)
             connectionId = hub.connection.connectionId;
         }
-        
+
         function registerParticipant() {
             const urlParams = new URLSearchParams(window.location.search);
             const participantName = urlParams.get('participantName');
-            
+
             hub.send('register', connectionId, participantName);
-            console.log('participant with connectionId: ', participantName, ' registered');
+            document.getElementById('pageHeader').innerHTML = 'Hello ' + participantName;
         }
 
         hub.on('Question', (connectionId, message) => {
             console.log('question, connectionId: ', connectionId, 'message: ', message);
             var question = JSON.parse(message);
-            
+
             document.getElementById('question').innerHTML = question.Text;
 
             document.getElementById('A_label').innerHTML = question.A;
@@ -41,10 +39,16 @@
             document.getElementById('C_label').innerHTML = question.C;
             document.getElementById('D_label').innerHTML = question.D;
             
+            document.getElementById('waitingContainer').classList.add("d-none");
+            document.getElementById('questionContainer').classList.remove("d-none");
         });
         
+        hub.on('ReceiveMessage', (connectionId, message) => {
+            document.getElementById('message').innerHTML = message;
+        });
+
         document.getElementById('submit').addEventListener('click', function (event) {
-            
+
             // get checked radio button
             var a = document.getElementById('A');
             var b = document.getElementById('B');
@@ -61,6 +65,9 @@
 
                 hub.send('submitAnswer', connectionId, JSON.stringify(question));
                 console.log('connectionId: ', connectionId, ', answer: ', JSON.stringify(question));
+
+                document.getElementById('waitingContainer').classList.remove("d-none");
+                document.getElementById('questionContainer').classList.add("d-none");
             }
 
             event.preventDefault();
@@ -75,34 +82,41 @@
     });
 </script>
 
-<h1>@ViewData["Title"]</h1>
+<h1 id="pageHeader">Hello</h1>
 
-<p>Hello!</p>
 <div class="container">
     <div class="text-center">
+        <div>
+            <h3 id="message">Please wait for question to come</h3>
+        </div>
         <form method="post">
 
-            <h2>Question:</h2>
-            <h3 id="question">What would be your answer?</h3>
-            <div>
-                <div class="form-check">
-                    <input class="form-check-input" type="radio" name="flexRadioDefault" id="A">
-                    <label class="form-check-label" for="A" id="A_label">A</label>
+            <div id="questionContainer" class="d-none">
+                <h2>Question:</h2>
+                <h3 id="question">What would be your answer?</h3>
+                <div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="flexRadioDefault" id="A">
+                        <label class="form-check-label" for="A" id="A_label">A</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="flexRadioDefault" id="B">
+                        <label class="form-check-label" for="B" id="B_label">B</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="flexRadioDefault" id="C">
+                        <label class="form-check-label" for="C" id="C_label">C</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="flexRadioDefault" id="D">
+                        <label class="form-check-label" for="D" id="D_label">D</label>
+                    </div>
                 </div>
-                <div class="form-check">
-                    <input class="form-check-input" type="radio" name="flexRadioDefault" id="B">
-                    <label class="form-check-label" for="B" id="B_label">B</label>
-                </div>
-                <div class="form-check">
-                    <input class="form-check-input" type="radio" name="flexRadioDefault" id="C">
-                    <label class="form-check-label" for="C" id="C_label">C</label>
-                </div>
-                <div class="form-check">
-                    <input class="form-check-input" type="radio" name="flexRadioDefault" id="D">
-                    <label class="form-check-label" for="D" id="D_label">D</label>
-                </div>
+                <button id="submit" class="btn btn-primary">Submit</button>
             </div>
-            <button id="submit" class="btn btn-primary">Submit</button>
+            <div id="waitingContainer" class="">
+                <span>Please wait for question to come...</span>
+            </div>
         </form>
     </div>
 </div>

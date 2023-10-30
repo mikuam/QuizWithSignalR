@@ -29,6 +29,7 @@ public class QuizHub : Microsoft.AspNetCore.SignalR.Hub
         });
 
         await Client.SendAsync("ReceiveMessage", connectionId, "Registered, thanks!");
+        await _hubContext.Clients.All.SendAsync("ParticipantRegistered", connectionId, name);
     }
 
     public async Task SubmitAnswer(string connectionId, string message)
@@ -43,8 +44,11 @@ public class QuizHub : Microsoft.AspNetCore.SignalR.Hub
         var answerRequest = JsonSerializer.Deserialize<AnswerRequest>(message);
         var question = _storage.Questions.FirstOrDefault(x => x.Text == answerRequest.Question);
 
+        if (AnswerAlreadyExists(participant, question)) return;
+        
         var answer = new Answer
         {
+            Question = question.Text,
             AnswerTime = DateTime.Now - question.AskedOn,
             IsCorrect = answerRequest.Answer == question.CorrectAnswer
         };
@@ -52,11 +56,13 @@ public class QuizHub : Microsoft.AspNetCore.SignalR.Hub
         participant.Answers.Add(answer);
 
         await Client.SendAsync("ReceiveMessage", connectionId, "Answer submitted, thanks!");
+        
+        await _hubContext.Clients.All.SendAsync("LeaderboardUpdated", participant.ConnectionId, JsonSerializer.Serialize(participant.GetResult()));
     }
 
-
-    public Task Echo(string name, string message) =>
-        Clients.Client(Context.ConnectionId)
-            .SendAsync("echo", name, $"{message} (echo from server)");
+    private bool AnswerAlreadyExists(Participant participant, Question question)
+    {
+        return participant.Answers.Any(x => x.Question == question.Text);
+    }
 }
 

@@ -4,15 +4,77 @@
     ViewData["Title"] = "Leaderboard";
 }
 
+<!--
+<link rel="stylesheet" href="https://unpkg.com/bootstrap-table@1.22.1/dist/bootstrap-table.min.css">
+<script src="https://unpkg.com/bootstrap-table@1.22.1/dist/bootstrap-table.min.js"></script>
+-->
+<!--Reference the SignalR library. -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/6.0.1/signalr.js"></script>
 
-<p>Hello!</p>
+<!--Add script to update the page and send messages.-->
+<script type="text/javascript">
+    document.addEventListener('DOMContentLoaded', function () {
+        const hub = new signalR.HubConnectionBuilder()
+            .withUrl('/quizHub')
+            .build();
+
+        hub.on('participantRegistered', (connectionId, participantName) => {
+
+            var leaderboardTable = document.getElementById('leaderboardTable').getElementsByTagName('tbody')[0];
+            var row = leaderboardTable.insertRow(0);
+            var cellName = row.insertCell(0);
+            var cellAnswersCount = row.insertCell(1);
+            var cellCorrectAnswers = row.insertCell(2);
+            var cellTotalTime = row.insertCell(3);
+
+            row.id = 'row_' + connectionId;
+            cellName.innerHTML = participantName;
+            cellAnswersCount.innerHTML = 0;
+            cellCorrectAnswers.innerHTML = 0;
+            cellTotalTime.innerHTML = '00:00:00';
+        });
+
+        hub.on('leaderboardUpdated', (connectionId, participantResultJson) => {
+            var participantResult = JSON.parse(participantResultJson);
+
+            var cells = document.getElementById('row_' + connectionId).getElementsByTagName('td');
+            cells[1].innerHTML = participantResult.AnswersCount;
+            cells[2].innerHTML = participantResult.CorrectAnswers;
+            cells[3].innerHTML = participantResult.TotalTime;
+        });
+
+        hub.start()
+            .then(() => console.log('Connection started'))
+            .catch(error => console.error(error.message));
+    });
+</script>
+
+
 <div class="container">
     <div class="text-center">
-        <h1 class="display-4">Leaderboard</h1>
-        <form method="post">
-            <button type="submit" class="btn btn-primary py-3 px-5 mt-3" asp-page-handler="SendQuestion1">Send Question 1</button>
-            <button type="submit" class="btn btn-primary py-3 px-5 mt-3" asp-page-handler="SendQuestion2">Send Question 2</button>
-            <button type="submit" class="btn btn-primary py-3 px-5 mt-3" asp-page-handler="SendQuestion3">Send Question 3</button>
-        </form>
+        <div>
+            <h1 class="display-4">Leaderboard</h1>
+            <table class="table table-striped" data-toggle="table" id="leaderboardTable">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Answers count</th>
+                        <th>Correct answers</th>
+                        <th>Total time</th>
+                    </tr>
+                </thead>
+                <tbody id="leaderboardTableBody">
+                    @foreach (var item in Model.Results)
+                    {
+                        <tr id="row_@item.ConnectionId">
+                            <td>@item.ParticipantName</td>
+                            <td>@item.AnswersCount</td>
+                            <td>@item.CorrectAnswers</td>
+                            <td>@item.TotalTime</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
