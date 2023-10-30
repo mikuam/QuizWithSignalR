@@ -36,8 +36,7 @@ public class AdminModel : PageModel
 
     public async Task OnPostClear()
     {
-        _storage.Participants.Clear();
-        _storage.Questions.Clear();
+        _storage.Clear();
 
         RedirectToPage("Admin");
     }

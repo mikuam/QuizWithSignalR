@@ -67,42 +67,50 @@ public class InMemoryStorage
 {
     public InMemoryStorage()
     {
-        Questions.Add(new Question
+        GetDefaultQuestions().ForEach(Questions.Add);
+    }
+
+    private List<Question> GetDefaultQuestions()
+    {
+        return new()
         {
-            Text = "What communication protocol SignalR is NOT using",
-            A = "Web Sockets API",
-            B = "WebRTC",
-            C = "HTML 5 API SSE",
-            D = "Comet",
-            CorrectAnswer = "B"
-        });
-        Questions.Add(new Question
-        {
-            Text = "What are scenarios where SignalR would NOT proof useful",
-            A = "Notifications, alerts",
-            B = "Chat",
-            C = "Fetching data on the page",
-            D = "Dashboards, constant updates",
-            CorrectAnswer = "C"
-        });
-        Questions.Add(new Question
-        {
-            Text = "SignalR is a communication",
-            A = "From Server to Client",
-            B = "From Client to Server",
-            C = "Both ways",
-            D = "",
-            CorrectAnswer = "C"
-        });
-        Questions.Add(new Question
-        {
-            Text = "What is the capital of Poland?",
-            A = "Warsaw",
-            B = "Cracow",
-            C = "Gdansk",
-            D = "Wroclaw",
-            CorrectAnswer = "A"
-        });
+            new Question
+            {
+                Text = "What communication protocol SignalR is NOT using",
+                A = "Web Sockets API",
+                B = "WebRTC",
+                C = "HTML 5 API SSE",
+                D = "Comet",
+                CorrectAnswer = "B"
+            },
+            new Question
+            {
+                Text = "What are scenarios where SignalR would NOT proof useful",
+                A = "Notifications, alerts",
+                B = "Chat",
+                C = "Fetching data on the page",
+                D = "Dashboards, constant updates",
+                CorrectAnswer = "C"
+            },
+            new Question
+            {
+                Text = "SignalR is a communication",
+                A = "From Server to Client",
+                B = "From Client to Server",
+                C = "Both ways",
+                D = "",
+                CorrectAnswer = "C"
+            },
+            new Question
+            {
+                Text = "What is the capital of Poland?",
+                A = "Warsaw",
+                B = "Cracow",
+                C = "Gdansk",
+                D = "Wroclaw",
+                CorrectAnswer = "A"
+            }
+        };
     }
 
     public ConcurrentBag<Participant> Participants { get; set; } = new ConcurrentBag<Participant>();
@@ -115,5 +123,12 @@ public class InMemoryStorage
             .OrderByDescending(x => x.CorrectAnswers)
             .ThenBy(x => x.TotalTime)
             .ToList();
+    }
+
+    public void Clear()
+    {
+        Participants.Clear();
+        Questions.Clear();
+        GetDefaultQuestions().ForEach(Questions.Add);
     }
 }
