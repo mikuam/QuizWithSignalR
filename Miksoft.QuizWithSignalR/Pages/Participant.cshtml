@@ -3,17 +3,20 @@
 @{
     ViewData["Title"] = "Participate";
 }
-<h1>@ViewData["Title"]</h1>
 
-<p>Hello!</p>
 <div class="container">
     <div class="text-center">
         <form method="post">
-            <div class="form-group form-paddding">
-                <label for="name">Type your name:</label>
-                <input type="text" id="name" name="Name" placeholder="Name">
+            <div class="card col-md-6 mx-auto">
+                <div class="card-body mb-4">
+                    <h3 id="question" class="card-title mb-4">Participate</h3>
+                    <div class="form-group form-paddding">
+                        <label for="Name">Type your name:</label>
+                        <input type="text" id="Name" name="Name" placeholder="Name">
+                    </div>
+                    <button type="submit" class="btn btn-primary py-3 px-5 mt-3">Participate</button>
+                </div>
             </div>
-            <button type="submit" class="btn btn-primary py-3 px-5 mt-3">Participate</button>
         </form>
     </div>
 </div>
