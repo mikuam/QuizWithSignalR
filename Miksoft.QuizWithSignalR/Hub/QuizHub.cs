@@ -28,7 +28,7 @@ public class QuizHub : Microsoft.AspNetCore.SignalR.Hub
             ConnectionId = connectionId
         });
 
-        await Client.SendAsync("ReceiveMessage", connectionId, "Registered, thanks!");
+        await Client.SendAsync("ReceiveMessage", connectionId, "Registered, thanks!!");
         await _hubContext.Clients.All.SendAsync("ParticipantRegistered", connectionId, name);
     }
 
